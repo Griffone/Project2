@@ -15,8 +15,10 @@ import se.kth.id1020.util.Document;
  */
 public abstract class QueryBase {
     
+    private static final Cache<QueryBase, SortedList<SearchResult>> CACHE = new Cache();
+    
     public abstract String toInfix();
-    public abstract SortedList<Document> find(HashMap<Document, DocumentWrapper> data);
+    public abstract SortedList<SearchResult> find(HashMap<Document, DocumentWrapper> data);
     
     /**
      * Gets the results.
@@ -26,8 +28,12 @@ public abstract class QueryBase {
      * @param data the data to search from
      * @return SortedList of documents
      */
-    public SortedList<Document> getResutls(HashMap<Document, DocumentWrapper> data) {
-        return find(data);
-        // TODO: implement caching
+    public SortedList<SearchResult> getResutls(HashMap<Document, DocumentWrapper> data) {
+        SortedList<SearchResult> results = CACHE.find(this);
+        if (results == null) {
+            results = find(data);
+            CACHE.put(this, results);
+        }
+        return results;
     }
 }

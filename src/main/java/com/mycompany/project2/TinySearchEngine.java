@@ -6,11 +6,8 @@
 package com.mycompany.project2;
 
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import se.kth.id1020.Driver;
 import se.kth.id1020.TinySearchEngineBase;
@@ -53,11 +50,7 @@ public class TinySearchEngine implements TinySearchEngineBase {
         }
         
         for (Word word : sntnc.getWords())
-            try {
-                doc.add(word, atrbts);
-            } catch (Exception ex) {
-                Logger.getLogger(TinySearchEngine.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            doc.add(word, atrbts);
     }
 
     @Override
@@ -69,9 +62,15 @@ public class TinySearchEngine implements TinySearchEngineBase {
             lastQueryString = string;
             lastQuery = Query.fromString(string);
         }
-        if (lastQuery != null)
-            return lastQuery.getResults(docs);
-        return null;
+        if (lastQuery == null)
+            return null;
+        List<SearchResult> results = lastQuery.getResults(docs);
+        List<Document> answer = new LinkedList();
+        results.forEach((result) -> {
+            //System.out.println(result.relevance);
+            answer.add(result.document);
+        });
+        return answer;
     }
 
     @Override
@@ -80,7 +79,9 @@ public class TinySearchEngine implements TinySearchEngineBase {
             lastQueryString = string;
             lastQuery = Query.fromString(string);
         }
-        return lastQuery.toInfix();
+        if (lastQuery != null)
+            return lastQuery.toInfix();
+        return "";
     }
 
 }

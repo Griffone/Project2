@@ -6,6 +6,7 @@
 package com.mycompany.project2;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 /**
  * An always sorted list.
@@ -17,10 +18,37 @@ import java.util.List;
  * @author Griffone
  * @param <T extends Comparable<T>> a comparable type
  */
-public class SortedList<T extends Comparable<T>> {
+public class SortedList<T extends Comparable<T>> implements Iterable {
 
     private Node first = null;
     private Node last = null;
+
+    public class ListIterator<T> implements Iterator {
+
+        private Node current;
+        
+        ListIterator(Node first) {
+            this.current = first;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        @Override
+        public Object next() {
+            T ret = (T) current.item;
+            current = current.next;
+            return ret;
+        }
+        
+    }
+    
+    @Override
+    public Iterator iterator() {
+        return new ListIterator(first);
+    }
     
     private class Node {
         Node next;

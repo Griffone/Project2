@@ -6,6 +6,7 @@
 package com.mycompany.project2;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import se.kth.id1020.util.Document;
 
 /**
@@ -26,14 +27,31 @@ public class QuerySearch extends QueryBase {
         return word;
     }
 
+    
+    private static int documentHits;
+    
     @Override
-    public SortedList<Document> find(HashMap<Document, DocumentWrapper> data) {
-        SortedList<Document> list = new SortedList();
+    public SortedList<SearchResult> find(HashMap<Document, DocumentWrapper> data) {
+        SortedList<SearchResult> list = new SortedList();
+        documentHits = 0;
         data.forEach((document, documentWrapper) -> {
-            if (documentWrapper.words.containsKey(word))
-                list.insert(document);
+            if (documentWrapper.words.containsKey(word)) {
+                documentHits++;
+                double freq = (double) documentWrapper.words.get(word).wordCount() / (double) documentWrapper.wordCount();
+                list.insert(new SearchResult(document, freq));
+            }
         });
+        Iterator<SearchResult> it = list.iterator();
+        double inverseDocumentFreq = Math.log10((double) data.size() / (double) documentHits);
+        while (it.hasNext())
+            it.next().relevance *= inverseDocumentFreq;
+        
         return list;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        return o.getClass().equals(QuerySearch.class) && (word.compareToIgnoreCase(((QuerySearch)o).word) == 0);
     }
     
     @Override

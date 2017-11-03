@@ -6,8 +6,6 @@
 package com.mycompany.project2;
 
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import se.kth.id1020.util.Attributes;
 import se.kth.id1020.util.Word;
 
@@ -22,19 +20,20 @@ import se.kth.id1020.util.Word;
 public class DocumentWrapper {
     
     public HashMap<String, WordFamily> words;
+    private int size = 0;
+    
+    public int wordCount() {
+        return size;
+    }
     
     public DocumentWrapper() {
         words = new HashMap();
     }
     
-    public void add(Word word, Attributes attributes) throws Exception {
+    public void add(Word word, Attributes attributes) {
+        size++;
         words.merge(word.word, new WordFamily(word, attributes), (oldFamily, newFamily) -> {
-            try {
-                return oldFamily.add(word, attributes);
-            } catch (Exception ex) {
-                Logger.getLogger(DocumentWrapper.class.getName()).log(Level.SEVERE, null, ex);
-                return null;
-            }
+            return oldFamily.add(word, attributes);
         });
     }
 }

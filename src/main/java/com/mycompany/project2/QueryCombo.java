@@ -45,8 +45,8 @@ public class QueryCombo extends QueryBase {
     }
 
     @Override
-    public SortedList<Document> find(HashMap<Document, DocumentWrapper> data) {
-        SortedList<Document> list = a.getResutls(data);
+    public SortedList<SearchResult> find(HashMap<Document, DocumentWrapper> data) {
+        SortedList<SearchResult> list = a.getResutls(data);
         switch (comboType) {
             case INTERSECTION:
                 list = list.instersect(b.getResutls(data));
@@ -59,6 +59,23 @@ public class QueryCombo extends QueryBase {
                 break;
         }
         return list;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o.getClass().equals(QueryCombo.class)) {
+            QueryCombo obj = (QueryCombo)o;
+            if (obj.comboType != comboType)
+                return false;
+            switch (comboType) {
+                case INTERSECTION:
+                case UNION:
+                    return (a.equals(obj.a) && b.equals(obj.b)) || (a.equals(obj.b) && b.equals(obj.a));
+                case DIFFERENCE:
+                    return a.equals(obj.a) && b.equals(obj.b);
+            }
+        }
+        return false;
     }
     
     public static enum CombinationType {

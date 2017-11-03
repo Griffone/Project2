@@ -73,19 +73,39 @@ public class Query {
             return new Query(tree.root.toQueryBase(), sort_dir_desc, sort_type);
     }
     
-    public List<Document> getResults(HashMap<Document, DocumentWrapper> data) {
-        List<Document> list = query.getResutls(data).toList();
+    public List<SearchResult> getResults(HashMap<Document, DocumentWrapper> data) {
+        List<SearchResult> list = query.getResutls(data).toList();
         switch (sort_type) {
             case POPULARITY:
                 if (sort_descending)
                     list.sort((a, b) -> {
-                        return b.popularity - a.popularity;
+                        return b.document.popularity - a.document.popularity;
                     });
                 else
                     list.sort((a, b) -> {
-                        return a.popularity - b.popularity;
+                        return a.document.popularity - b.document.popularity;
                     });
             case RELEVANCE:
+                if (sort_descending)
+                    list.sort((a, b) -> {
+                        double diff = a.relevance - b.relevance;
+                        if (diff > SearchResult.RELEVANCE_EQUALITY)
+                            return -1;
+                        else if (diff < SearchResult.RELEVANCE_EQUALITY)
+                            return 1;
+                        else
+                            return 0;
+                    });
+                else
+                    list.sort((a, b) -> {
+                        double diff = a.relevance - b.relevance;
+                        if (diff > SearchResult.RELEVANCE_EQUALITY)
+                            return 1;
+                        else if (diff < SearchResult.RELEVANCE_EQUALITY)
+                            return -1;
+                        else
+                            return 0;
+                    });
                 break;
         }
         return list;
